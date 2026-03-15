@@ -1,0 +1,11 @@
+__pycache__/
+.ruff_cache/
+node_modules/
+out/
+*.vsix
+gitignored/
+CLAUDE.md
+fixes.md
+test_edge.js
+test_output/
+.DS_Store

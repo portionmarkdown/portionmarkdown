@@ -1,0 +1,252 @@
+{
+  "name": "portionmarkdown",
+  "displayName": "Portion Markdown",
+  "description": "Classification banners, portion markings, and structural validation for Markdown documents",
+  "version": "0.0.1",
+  "publisher": "portionmarkdown",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/portionmarkdown/portionmarkdown"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "portionmarkdown.wrapMarking",
+        "title": "Wrap Selection with Portion Marking"
+      },
+      {
+        "command": "portionmarkdown.previewPdf",
+        "title": "Portion Markdown: Preview PDF"
+      },
+      {
+        "command": "portionmarkdown.exportPdf",
+        "title": "Portion Markdown: Export to PDF"
+      },
+      {
+        "command": "portionmarkdown.exportWatermarkedPdf",
+        "title": "Portion Markdown: Export Watermarked PDF"
+      },
+      {
+        "command": "portionmarkdown.insertClassification",
+        "title": "Classification Block"
+      },
+      {
+        "command": "portionmarkdown.insertCui",
+        "title": "CUI Block"
+      },
+      {
+        "command": "portionmarkdown.insertMarkings",
+        "title": "Markings Block"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "portionmarkdown.insertTemplate",
+        "label": "Insert Template Block"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "portionmarkdown.wrapMarking",
+          "when": "editorLangId == markdown && editorHasSelection",
+          "group": "1_modification@10"
+        },
+        {
+          "submenu": "portionmarkdown.insertTemplate",
+          "when": "editorLangId == markdown",
+          "group": "1_modification@11"
+        },
+        {
+          "command": "portionmarkdown.previewPdf",
+          "when": "editorLangId == markdown",
+          "group": "1_modification@12"
+        },
+        {
+          "command": "portionmarkdown.exportPdf",
+          "when": "editorLangId == markdown",
+          "group": "1_modification@13"
+        },
+        {
+          "command": "portionmarkdown.exportWatermarkedPdf",
+          "when": "editorLangId == markdown",
+          "group": "1_modification@14"
+        }
+      ],
+      "portionmarkdown.insertTemplate": [
+        {
+          "command": "portionmarkdown.insertClassification",
+          "group": "1_blocks@1"
+        },
+        {
+          "command": "portionmarkdown.insertCui",
+          "group": "1_blocks@2"
+        },
+        {
+          "command": "portionmarkdown.insertMarkings",
+          "group": "1_blocks@3"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "portionmarkdown.exportPdf",
+          "when": "resourceLangId == markdown",
+          "group": "navigation@99"
+        },
+        {
+          "command": "portionmarkdown.exportWatermarkedPdf",
+          "when": "resourceLangId == markdown",
+          "group": "navigation@100"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Portion Markdown",
+      "properties": {
+        "portionmarkdown.font": {
+          "type": "string",
+          "enum": [
+            "Default",
+            "Computer Modern"
+          ],
+          "default": "Default",
+          "description": "Font family used in PDF output."
+        },
+        "portionmarkdown.commonMarkings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "Short key used in div marking attribute (e.g. TS)"
+              },
+              "short": {
+                "type": "string",
+                "description": "Portion marking prefix (e.g. TS)"
+              },
+              "long": {
+                "type": "string",
+                "description": "Full classification name (e.g. TOP SECRET)"
+              }
+            },
+            "required": [
+              "key",
+              "short",
+              "long"
+            ]
+          },
+          "default": [],
+          "description": "Common marking definitions available in the Wrap Selection quick-pick, in addition to those defined in the document."
+        },
+        "portionmarkdown.commonClassificationBlocks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Display name for this template (e.g. SCG-2024-001)"
+              },
+              "marking": {
+                "type": "string",
+                "description": "Banner marking level (e.g. CONFIDENTIAL)"
+              },
+              "classifiedBy": {
+                "type": "string",
+                "description": "Classification authority"
+              },
+              "derivedFrom": {
+                "type": "string",
+                "description": "Source classification guide"
+              },
+              "declassifyOn": {
+                "type": "string",
+                "description": "Declassification date (YYYYMMDD)"
+              }
+            },
+            "required": [
+              "name",
+              "marking"
+            ]
+          },
+          "default": [],
+          "markdownDescription": "Named classification block templates (SCG data). Each entry becomes a quick-pick option when inserting a classification block."
+        },
+        "portionmarkdown.commonCuiBlocks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Display name for this template"
+              },
+              "controlledBy": {
+                "type": "string",
+                "description": "Controlling office"
+              },
+              "categories": {
+                "type": "string",
+                "description": "CUI categories (e.g. PRVCY, ITAR)"
+              },
+              "distribution": {
+                "type": "string",
+                "description": "Distribution statement (e.g. C, D)"
+              },
+              "poc": {
+                "type": "string",
+                "description": "Point of contact"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "default": [],
+          "markdownDescription": "Named CUI block templates. Each entry becomes a quick-pick option when inserting a CUI block."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "check": "tsc -p ./ --noEmit && eslint src/ && prettier --check src/",
+    "package": "npm run check && npm run compile && vsce package --out portionmarkdown.vsix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/markdown-it": "^14.0.0",
+    "@types/node": "^25.4.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.7.1",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.57.0"
+  },
+  "dependencies": {
+    "highlight.js": "^11.11.1",
+    "htmlparser2": "^10.1.0",
+    "markdown-it": "^14.1.1",
+    "markdown-it-attrs": "^4.3.1",
+    "pdfjs-dist": "^4.10.38"
+  }
+}
