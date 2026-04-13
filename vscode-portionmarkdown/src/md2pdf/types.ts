@@ -119,4 +119,6 @@ export interface Md2PdfOptions {
   watermark?: string | null;
   extensionPath?: string;
   font?: string;
+  plantumlPath?: string;
+  javaPath?: string;
 }

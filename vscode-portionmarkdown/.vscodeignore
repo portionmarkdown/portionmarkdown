@@ -20,3 +20,9 @@ node_modules/pdfjs-dist/build/*.js
 node_modules/highlight.js/scss/**
 node_modules/highlight.js/types/**
 node_modules/highlight.js/es/**
+
+# jsdom — trim tests, docs
+node_modules/jsdom/lib/jsdom/browser/resources/**
+
+# resvg-wasm — trim extras (keep index.js + wasm binary)
+node_modules/@resvg/resvg-wasm/README.md

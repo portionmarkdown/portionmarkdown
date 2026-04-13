@@ -48,6 +48,10 @@
       {
         "command": "portionmarkdown.insertMarkings",
         "title": "Markings Block"
+      },
+      {
+        "command": "portionmarkdown.saveDiagramAsPng",
+        "title": "Portion Markdown: Save Diagram as PNG"
       }
     ],
     "submenus": [
@@ -82,6 +86,11 @@
           "command": "portionmarkdown.exportWatermarkedPdf",
           "when": "editorLangId == markdown",
           "group": "1_modification@14"
+        },
+        {
+          "command": "portionmarkdown.saveDiagramAsPng",
+          "when": "editorLangId == markdown",
+          "group": "1_modification@15"
         }
       ],
       "portionmarkdown.insertTemplate": [
@@ -184,6 +193,16 @@
           "default": [],
           "markdownDescription": "Named classification block templates (SCG data). Each entry becomes a quick-pick option when inserting a classification block."
         },
+        "portionmarkdown.plantumlPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to `plantuml` binary or `plantuml.jar`. Leave empty to auto-detect from `PATH` / `PLANTUML_JAR` env var."
+        },
+        "portionmarkdown.javaPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to `java` executable used when running `plantuml.jar`. Leave empty to use `java` from `PATH`."
+        },
         "portionmarkdown.commonCuiBlocks": {
           "type": "array",
           "items": {
@@ -221,7 +240,8 @@
     }
   },
   "scripts": {
-    "compile": "tsc -p ./",
+    "build:diagrams": "mkdir -p lib && cp node_modules/mermaid/dist/mermaid.min.js lib/mermaid.min.js",
+    "compile": "tsc -p ./ && npm run build:diagrams",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
@@ -232,19 +252,23 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/jsdom": "^28.0.1",
     "@types/markdown-it": "^14.0.0",
     "@types/node": "^25.4.0",
     "@types/vscode": "^1.80.0",
     "@vscode/vsce": "^3.7.1",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
+    "mermaid": "^11.14.0",
     "prettier": "^3.8.1",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.57.0"
   },
   "dependencies": {
+    "@resvg/resvg-wasm": "^2.6.2",
     "highlight.js": "^11.11.1",
     "htmlparser2": "^10.1.0",
+    "jsdom": "^29.0.2",
     "markdown-it": "^14.1.1",
     "markdown-it-attrs": "^4.3.1",
     "pdfjs-dist": "^4.10.38"

@@ -15,6 +15,7 @@ import { validateMarkings } from "./validate";
 import { watermarkPdf } from "./watermark";
 import { loadFonts } from "./fonts";
 import { initFontMetrics, clearFontMetrics } from "./fontMetrics";
+import { renderDiagrams } from "./diagramRenderer";
 
 // ── Document metadata parsing ─────────────────────────────────────────
 
@@ -207,7 +208,10 @@ export interface Md2PdfResult {
  * @param options - Optional settings (srcDir for image resolution, watermark text)
  * @returns Result with PDF buffer or errors
  */
-export function md2pdf(markdownText: string, options: Md2PdfOptions = {}): Md2PdfResult {
+export async function md2pdf(
+  markdownText: string,
+  options: Md2PdfOptions = {},
+): Promise<Md2PdfResult> {
   // Load fonts based on selected font family
   const useEmbeddedFonts = options.font === "Computer Modern";
   let fonts;
@@ -241,12 +245,22 @@ export function md2pdf(markdownText: string, options: Md2PdfOptions = {}): Md2Pd
 
   // Parse markdown → HTML → blocks
   const html = renderMarkdown(fnResult.text);
-  const { blocks, footnotes } = parseHtml(html, mdefs);
+  const { blocks: rawBlocks, footnotes } = parseHtml(html, mdefs);
 
   // Merge pre-processed footnote defs with any parsed from HTML
   for (const [num, text] of fnResult.defs) {
     if (!footnotes.has(num)) footnotes.set(num, text);
   }
+
+  // Render diagrams (mermaid / plantuml) → replace code blocks with images
+  const diagramResult = await renderDiagrams(
+    rawBlocks,
+    options.extensionPath || __dirname,
+    options.plantumlPath,
+    options.javaPath,
+  );
+  const blocks = diagramResult.blocks;
+  const diagramWarnings = diagramResult.warnings;
 
   // Layout
   const images: ImageInfo[] = [];
@@ -259,6 +273,7 @@ export function md2pdf(markdownText: string, options: Md2PdfOptions = {}): Md2Pd
     mdefs,
     blockLines,
     footnotes,
+    diagramResult.preloadedImages,
   );
 
   // Build PDF
@@ -279,7 +294,12 @@ export function md2pdf(markdownText: string, options: Md2PdfOptions = {}): Md2Pd
     pdf = watermarkPdf(pdf, options.watermark);
   }
 
-  return { success: true, pdf, pageCount: pages.length };
+  return {
+    success: true,
+    pdf,
+    pageCount: pages.length,
+    warnings: diagramWarnings.length > 0 ? diagramWarnings : undefined,
+  };
 }
 
 // Re-export types

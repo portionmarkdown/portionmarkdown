@@ -74,8 +74,14 @@ export function parseHtml(html: string, markingDefs: MarkingDefs): ParseResult {
       return;
     }
     if (runs.length === 0) return;
-    // drop whitespace-only runs
-    if (runs.every((r) => r.text.trim() === "")) {
+    // Drop runs that are purely whitespace — but keep runs containing \n
+    // because those are intentional <br> line breaks (text-node newlines
+    // are already normalised to spaces in ontext, so any remaining \n
+    // must have come from a <br> tag).
+    if (
+      runs.every((r) => r.text.trim() === "") &&
+      !runs.some((r) => r.text.includes("\n"))
+    ) {
       runs = [];
       btag = null;
       bmeta = {};
@@ -365,7 +371,12 @@ export function parseHtml(html: string, markingDefs: MarkingDefs): ParseResult {
         if (pre) {
           preBuf += data;
         } else if (data) {
-          const run: TextRun = { text: data, font: currentFont() };
+          // In HTML, newlines in text nodes are whitespace, not line breaks.
+          // Explicit line breaks come from <br> tags (handled in onopentag).
+          // Collapse whitespace: \n→space, then merge consecutive spaces
+          const text = data.replace(/\s+/g, " ");
+          if (!text.trim()) return; // skip whitespace-only text nodes
+          const run: TextRun = { text, font: currentFont() };
           if (linkHref) run.link = linkHref;
           if (fnrefNum != null) run.footnoteRef = fnrefNum;
           if (strikethrough) run.strikethrough = true;

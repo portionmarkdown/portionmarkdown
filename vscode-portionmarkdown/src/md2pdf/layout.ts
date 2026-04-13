@@ -81,6 +81,7 @@ export function layout(
   markingDefs: MarkingDefs,
   blockLines: BlockLines,
   footnoteDefs?: Map<number, string>,
+  preloadedImages?: Map<string, ImageInfo>,
 ): Pg[] {
   // Build lookup for in-cell portion marking detection
   const cellPm: Record<string, RGB> = {};
@@ -404,8 +405,13 @@ export function layout(
 
     if (b.type === "image") {
       const imgSrc = decodeURIComponent(b.src);
-      const imgPath = path.isAbsolute(imgSrc) ? imgSrc : path.join(srcDir || ".", imgSrc);
-      const imgInfo = loadImage(imgPath);
+      let imgInfo = preloadedImages?.get(imgSrc) ?? null;
+      if (!imgInfo) {
+        const imgPath = path.isAbsolute(imgSrc)
+          ? imgSrc
+          : path.join(srcDir || ".", imgSrc);
+        imgInfo = loadImage(imgPath);
+      }
       if (!imgInfo) {
         // Show placeholder for missing image
         const msg = `[Image not found: ${imgSrc}]`;

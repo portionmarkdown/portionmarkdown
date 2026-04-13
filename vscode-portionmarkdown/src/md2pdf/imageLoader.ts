@@ -205,14 +205,9 @@ function paethPredictor(a: number, b: number, c: number): number {
   return c;
 }
 
-/** Load an image file and return info for PDF embedding, or null. */
-export function loadImage(filePath: string): ImageInfo | null {
-  let data: Buffer;
-  try {
-    data = fs.readFileSync(filePath);
-  } catch {
-    return null;
-  }
+/** Load image from a raw buffer (JPEG or PNG) for PDF embedding. */
+export function loadImageBuffer(data: Buffer): ImageInfo | null {
+  if (data.length < 4) return null;
 
   // JPEG
   if (data[0] === 0xff && data[1] === 0xd8) {
@@ -234,4 +229,15 @@ export function loadImage(filePath: string): ImageInfo | null {
   }
 
   return null;
+}
+
+/** Load an image file and return info for PDF embedding, or null. */
+export function loadImage(filePath: string): ImageInfo | null {
+  let data: Buffer;
+  try {
+    data = fs.readFileSync(filePath);
+  } catch {
+    return null;
+  }
+  return loadImageBuffer(data);
 }

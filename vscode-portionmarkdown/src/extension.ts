@@ -353,11 +353,17 @@ export function activate(context: vscode.ExtensionContext) {
         const outputPath = saveUri.fsPath;
         const markdownText = fs.readFileSync(inputPath, "utf-8");
         const srcDir = path.dirname(inputPath);
-        const result = md2pdf(markdownText, {
+        const result = await md2pdf(markdownText, {
           srcDir,
           extensionPath: context.extensionPath,
           font: cfg<string>("font") || "Default",
+          plantumlPath: cfg<string>("plantumlPath") || undefined,
+          javaPath: cfg<string>("javaPath") || undefined,
         });
+
+        if (result.warnings?.length) {
+          vscode.window.showWarningMessage(result.warnings.join("; "));
+        }
 
         if (result.success && result.pdf) {
           fs.writeFileSync(outputPath, result.pdf);
@@ -402,12 +408,18 @@ export function activate(context: vscode.ExtensionContext) {
         const outputPath = saveUri.fsPath;
         const markdownText = fs.readFileSync(inputPath, "utf-8");
         const srcDir = path.dirname(inputPath);
-        const result = md2pdf(markdownText, {
+        const result = await md2pdf(markdownText, {
           srcDir,
           watermark: "EXAMPLE  EXAMPLE  EXAMPLE",
           extensionPath: context.extensionPath,
           font: cfg<string>("font") || "Default",
+          plantumlPath: cfg<string>("plantumlPath") || undefined,
+          javaPath: cfg<string>("javaPath") || undefined,
         });
+
+        if (result.warnings?.length) {
+          vscode.window.showWarningMessage(result.warnings.join("; "));
+        }
 
         if (result.success && result.pdf) {
           fs.writeFileSync(outputPath, result.pdf);
@@ -425,6 +437,53 @@ export function activate(context: vscode.ExtensionContext) {
         }
       },
     ),
+  );
+
+  // ── Save Diagram as PNG command ───────────────────────────────────
+  context.subscriptions.push(
+    vscode.commands.registerCommand("portionmarkdown.saveDiagramAsPng", async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor || editor.document.languageId !== "markdown") return;
+
+      const diag = findDiagramAtCursor(editor);
+      if (!diag) {
+        vscode.window.showWarningMessage(
+          "Place the cursor inside a mermaid or plantuml code block.",
+        );
+        return;
+      }
+
+      const defaultName = `diagram.png`;
+      const docDir = path.dirname(editor.document.uri.fsPath);
+      const saveUri = await vscode.window.showSaveDialog({
+        defaultUri: vscode.Uri.file(path.join(docDir, defaultName)),
+        filters: { PNG: ["png"] },
+        title: "Save Diagram as PNG",
+      });
+      if (!saveUri) return;
+
+      try {
+        const { renderSingleDiagram } = await import("./md2pdf/diagramRenderer");
+        const pngBuf = await renderSingleDiagram(
+          diag.lang,
+          diag.code,
+          context.extensionPath,
+          cfg<string>("plantumlPath") || undefined,
+          cfg<string>("javaPath") || undefined,
+        );
+        fs.writeFileSync(saveUri.fsPath, pngBuf);
+        const choice = await vscode.window.showInformationMessage(
+          `Diagram saved: ${saveUri.fsPath}`,
+          "Open",
+        );
+        if (choice === "Open") {
+          vscode.env.openExternal(saveUri);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        vscode.window.showErrorMessage(`Diagram render failed: ${msg}`);
+      }
+    }),
   );
 }
 
@@ -553,6 +612,53 @@ function firstContentLine(body: string): string {
   return "";
 }
 
+// ── Diagram detection ──────────────────────────────────────────────────
+
+const DIAGRAM_LANGS = new Set(["mermaid", "mermaidjs", "plantuml", "puml"]);
+
+function findDiagramAtCursor(
+  editor: vscode.TextEditor,
+): { lang: string; code: string } | null {
+  const doc = editor.document;
+  const cursorLine = editor.selection.active.line;
+
+  // Scan backwards for opening fence
+  let openLine = -1;
+  let lang = "";
+  for (let i = cursorLine; i >= 0; i--) {
+    const text = doc.lineAt(i).text;
+    const m = text.match(/^```(\w+)\s*$/);
+    if (m) {
+      const candidate = m[1].toLowerCase();
+      if (DIAGRAM_LANGS.has(candidate)) {
+        openLine = i;
+        lang = candidate;
+      }
+      break;
+    }
+    // Hit a closing fence before an opening one → cursor not in a block
+    if (text.match(/^```\s*$/) && i !== cursorLine) break;
+  }
+  if (openLine < 0) return null;
+
+  // Scan forward for closing fence
+  let closeLine = -1;
+  for (let i = openLine + 1; i < doc.lineCount; i++) {
+    if (doc.lineAt(i).text.match(/^```\s*$/)) {
+      closeLine = i;
+      break;
+    }
+  }
+  if (closeLine < 0 || cursorLine > closeLine) return null;
+
+  // Extract code between fences
+  const lines: string[] = [];
+  for (let i = openLine + 1; i < closeLine; i++) {
+    lines.push(doc.lineAt(i).text);
+  }
+  return { lang, code: lines.join("\n") };
+}
+
 // ── PDF generation and preview ──────────────────────────────────────────
 
 function schedulePreviewRefresh(
@@ -570,10 +676,12 @@ async function refreshPreview(
   if (!previewPanel) return;
 
   const srcDir = path.dirname(doc.uri.fsPath);
-  const result = md2pdf(doc.getText(), {
+  const result = await md2pdf(doc.getText(), {
     srcDir,
     extensionPath: context.extensionPath,
     font: cfg<string>("font") || "Default",
+    plantumlPath: cfg<string>("plantumlPath") || undefined,
+    javaPath: cfg<string>("javaPath") || undefined,
   });
 
   if (!result.success) {
