@@ -98,7 +98,13 @@ This line has a `<br>` line break<br>right here in the middle.
 
 <pagebreak />
 
-## Example Diagrams
+## Example Image & Diagrams
+
+</div>
+
+<div marking="EXAMPLE" markdown="1">
+
+![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=25% }
 
 </div>
 
@@ -115,13 +121,5 @@ Mermaid flow diagram (left-to-right):
 PlantUML sequence diagram:
 
 ![PlantUML sequence](img/plantuml-example.png){ width=40% }
-
-</div>
-
-<div marking="EXAMPLE" markdown="1">
-
-## Example Image
-
-![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=25% }
 
 </div>

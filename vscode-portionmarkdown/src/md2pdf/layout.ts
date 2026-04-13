@@ -473,7 +473,17 @@ export function layout(
         y -= 3;
       }
 
-      pages[pages.length - 1].image(MARGIN, y - dispH, dispW, dispH, imgName);
+      const pg2 = pages[pages.length - 1];
+      pg2.image(MARGIN, y - dispH, dispW, dispH, imgName);
+
+      // Draw border around diagram images (preloaded __diagram_ sources)
+      if (imgSrc.startsWith("__diagram_")) {
+        pg2.line(MARGIN, y, MARGIN + dispW, y, 0.3, CLR_TBL_LINE);
+        pg2.line(MARGIN, y - dispH, MARGIN + dispW, y - dispH, 0.3, CLR_TBL_LINE);
+        pg2.line(MARGIN, y, MARGIN, y - dispH, 0.3, CLR_TBL_LINE);
+        pg2.line(MARGIN + dispW, y, MARGIN + dispW, y - dispH, 0.3, CLR_TBL_LINE);
+      }
+
       y -= dispH;
 
       if (pm) {
