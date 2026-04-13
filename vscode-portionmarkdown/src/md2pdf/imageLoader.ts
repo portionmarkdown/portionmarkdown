@@ -41,6 +41,8 @@ function loadPng(data: Buffer): ImageInfo | null {
   let height = 0;
   let bitDepth = 0;
   let colorType = 0;
+  let palette: Buffer | null = null;
+  let trns: Buffer | null = null;
   const idatChunks: Buffer[] = [];
   let pos = 8; // skip signature
 
@@ -62,6 +64,10 @@ function loadPng(data: Buffer): ImageInfo | null {
         data[pos + 15];
       bitDepth = data[pos + 16];
       colorType = data[pos + 17];
+    } else if (chunkType === "PLTE") {
+      palette = data.subarray(pos + 8, pos + 8 + chunkLen);
+    } else if (chunkType === "tRNS") {
+      trns = data.subarray(pos + 8, pos + 8 + chunkLen);
     } else if (chunkType === "IDAT") {
       idatChunks.push(data.subarray(pos + 8, pos + 8 + chunkLen));
     } else if (chunkType === "IEND") {
@@ -92,6 +98,9 @@ function loadPng(data: Buffer): ImageInfo | null {
     case 2:
       bpp = 3;
       break; // RGB
+    case 3:
+      bpp = 1;
+      break; // Indexed (palette)
     case 4:
       bpp = 2;
       _hasAlpha = true;
@@ -101,8 +110,9 @@ function loadPng(data: Buffer): ImageInfo | null {
       _hasAlpha = true;
       break; // RGBA
     default:
-      return null; // Indexed or unsupported
+      return null;
   }
+  if (colorType === 3 && !palette) return null;
 
   const stride = width * bpp + 1; // +1 for filter byte
   if (rawData.length < stride * height) return null;
@@ -163,6 +173,19 @@ function loadPng(data: Buffer): ImageInfo | null {
         rgbData[dst + 1] = unfiltered[src + 1];
         rgbData[dst + 2] = unfiltered[src + 2];
         break;
+      case 3: {
+        // Indexed → look up palette, blend tRNS alpha on white
+        const idx = unfiltered[src];
+        const pi = idx * 3;
+        const r = palette![pi] ?? 0;
+        const g3 = palette![pi + 1] ?? 0;
+        const b = palette![pi + 2] ?? 0;
+        const a3 = trns && idx < trns.length ? trns[idx] / 255 : 1;
+        rgbData[dst] = Math.round(r * a3 + 255 * (1 - a3));
+        rgbData[dst + 1] = Math.round(g3 * a3 + 255 * (1 - a3));
+        rgbData[dst + 2] = Math.round(b * a3 + 255 * (1 - a3));
+        break;
+      }
       case 4: {
         // Grayscale+Alpha → blend on white
         const g = unfiltered[src];

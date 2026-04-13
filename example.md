@@ -98,26 +98,22 @@ This line has a `<br>` line break<br>right here in the middle.
 
 <pagebreak />
 
-## Example Image
-
-</div>
-
-<div marking="U" markdown="1">
-
-Example image at 100% width.
+## Example Diagrams
 
 </div>
 
 <div marking="S//NF" markdown="1">
 
-![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_15_50%20PM.png){ width=100% }
+Mermaid flow diagram (left-to-right):
+
+![Mermaid flow](img/mermaid-example.png){ width=60% }
 
 </div>
 
-<div marking="EXAMPLE" markdown="1">
+<div marking="S//NF" markdown="1">
 
-Example image at 30% width.
+PlantUML sequence diagram:
 
-![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=30% }
+![PlantUML sequence](img/plantuml-example.png){ width=50% }
 
 </div>

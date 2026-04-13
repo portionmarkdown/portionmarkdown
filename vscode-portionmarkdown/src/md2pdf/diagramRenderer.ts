@@ -107,26 +107,35 @@ async function ensureMermaid(extensionPath: string): Promise<void> {
   );
   jsdomWindow = dom.window;
 
-  // Expose DOM globals that mermaid / D3 expect
+  // Expose DOM globals that mermaid / D3 expect.
+  // Use Object.defineProperty for properties like navigator that
+  // are read-only getters in Node.js 21+.
   const g = global as any;
-  g.document = jsdomWindow.document;
-  g.window = jsdomWindow;
-  g.navigator = jsdomWindow.navigator;
-  g.DOMParser = jsdomWindow.DOMParser;
-  g.XMLSerializer = jsdomWindow.XMLSerializer;
-  g.self = jsdomWindow;
+  const props: Record<string, unknown> = {
+    document: jsdomWindow.document,
+    window: jsdomWindow,
+    navigator: jsdomWindow.navigator,
+    DOMParser: jsdomWindow.DOMParser,
+    XMLSerializer: jsdomWindow.XMLSerializer,
+    self: jsdomWindow,
+  };
+  for (const [k, v] of Object.entries(props)) {
+    Object.defineProperty(g, k, { value: v, writable: true, configurable: true });
+  }
 
   setupSvgMocks(jsdomWindow);
 
-  // Eval the vendored mermaid IIFE bundle inside jsdom
+  // Eval the vendored mermaid IIFE bundle inside jsdom.
+  // The bundle starts with "use strict" which scopes var declarations
+  // to the eval — strip it so the globals leak to jsdomWindow.
   const bundlePath = path.join(extensionPath, "lib", "mermaid.min.js");
-  const src = fs.readFileSync(bundlePath, "utf-8");
+  let src = fs.readFileSync(bundlePath, "utf-8");
+  src = src.replace(/^"use strict";/, "");
   jsdomWindow.eval(src);
 
-  // The IIFE registers on __esbuild_esm_mermaid_nm.mermaid — pull it out.
-  const ns = jsdomWindow.__esbuild_esm_mermaid_nm;
-  const mod = ns?.mermaid;
-  const mermaid = mod?.default ?? mod;
+  // The bundle ends with: globalThis["mermaid"] = ...default
+  // jsdom's eval delegates to Node's eval, so it lands on globalThis.
+  const mermaid = (globalThis as any).mermaid;
 
   if (!mermaid?.initialize) {
     throw new Error("Failed to load mermaid from vendored bundle");
@@ -149,7 +158,62 @@ async function renderMermaidSvg(code: string): Promise<string> {
   jsdomWindow.document.body.innerHTML = '<div id="container"></div>';
   const id = "diagram-" + Math.random().toString(36).slice(2, 10);
   const { svg } = await mermaid.render(id, code);
-  return svg;
+  return fixSvgViewBox(svg);
+}
+
+/**
+ * Mermaid's viewBox is wrong under jsdom because getBBox on container
+ * elements returns text-content-based sizes instead of layout sizes.
+ * Scan the SVG for actual node positions / sizes and rewrite the viewBox.
+ */
+function fixSvgViewBox(svg: string): string {
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
+
+  // Collect translate positions
+  for (const m of svg.matchAll(
+    /transform="translate\(\s*([\d.e+-]+)[\s,]+([\d.e+-]+)\s*\)"/g,
+  )) {
+    const x = parseFloat(m[1]);
+    const y = parseFloat(m[2]);
+    if (isFinite(x) && isFinite(y)) {
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+
+  // Collect rect dimensions (nodes have explicit width/height)
+  for (const m of svg.matchAll(
+    /<rect[^>]*?(?:x="([\d.e+-]+)")?[^>]*?(?:y="([\d.e+-]+)")?[^>]*?width="([\d.e+-]+)"[^>]*?height="([\d.e+-]+)"/g,
+  )) {
+    const rx = parseFloat(m[1] || "0");
+    const ry = parseFloat(m[2] || "0");
+    const rw = parseFloat(m[3]);
+    const rh = parseFloat(m[4]);
+    if (isFinite(rw) && isFinite(rh)) {
+      maxX = Math.max(maxX, rx + rw);
+      maxY = Math.max(maxY, ry + rh);
+      minX = Math.min(minX, rx);
+      minY = Math.min(minY, ry);
+    }
+  }
+
+  if (!isFinite(minX)) return svg; // nothing found, leave as-is
+
+  const pad = 20;
+  const vbX = minX - pad;
+  const vbY = minY - pad;
+  const vbW = maxX - minX + 2 * pad;
+  const vbH = maxY - minY + 2 * pad;
+
+  // Replace viewBox and strip max-width (which is also wrong)
+  let fixed = svg.replace(/viewBox="[^"]*"/, `viewBox="${vbX} ${vbY} ${vbW} ${vbH}"`);
+  fixed = fixed.replace(/style="[^"]*max-width:[^"]*"/, `style="max-width: ${vbW}px;"`);
+  return fixed;
 }
 
 async function ensureResvg(extensionPath: string): Promise<void> {

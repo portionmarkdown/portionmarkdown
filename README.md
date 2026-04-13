@@ -41,6 +41,7 @@ All commands are available from the editor right-click context menu on Markdown 
 | **Preview PDF** | Right-click | Opens a live PDF preview in a side panel. Auto-refreshes as you edit (800 ms debounce). |
 | **Export to PDF** | Right-click / file explorer | Exports the Markdown file to PDF alongside the source. |
 | **Export Watermarked PDF** | Right-click / file explorer | Exports the Markdown file to PDF with diagonal "EXAMPLE" watermark overlay. |
+| **Save Diagram as PNG** | Right-click (cursor in diagram block) | Renders a ` ```mermaidjs ` or ` ```plantuml ` code block to PNG and saves it. |
 
 The **Insert Template Block** submenu offers Classification, CUI, and Markings block insertion with quick-pick selection from blank, recently used, and settings-defined templates.
 
@@ -96,6 +97,24 @@ Named classification block templates (SCG data). Each entry appears as a quick-p
     "poc": "example"
   },
 ]
+```
+
+#### `portionmarkdown.plantumlPath`
+
+Path to the `plantuml` binary or `plantuml.jar` file. Leave empty to auto-detect from `PATH` or the `PLANTUML_JAR` environment variable.
+
+```jsonc
+"portionmarkdown.plantumlPath": "/opt/homebrew/bin/plantuml"
+// or
+"portionmarkdown.plantumlPath": "/usr/local/lib/plantuml.jar"
+```
+
+#### `portionmarkdown.javaPath`
+
+Path to the `java` executable used when running a `plantuml.jar` file. Leave empty to use `java` from `PATH`.
+
+```jsonc
+"portionmarkdown.javaPath": "/usr/lib/jvm/java-21/bin/java"
 ```
 
 The extension remembers your 5 most recently used markings and templates across sessions.
@@ -178,6 +197,8 @@ Marking format is `KEY: SHORT | LONG` — KEY is used in `<div marking="KEY">`, 
 
 - Headings, bold, italic, strikethrough, inline code
 - Fenced code blocks with syntax highlighting, line wrapping, and optional line numbers (`{startline=N}`)
+- Mermaid diagrams (` ```mermaidjs `) — rendered locally via jsdom + resvg-wasm, no cloud services
+- PlantUML diagrams (` ```plantuml `) — rendered locally via the system `plantuml` command (requires Java)
 - Blockquotes (`>`) with nesting support
 - Tables with header row styling, alternating row shading, per-cell portion markings, and cross-page splitting
 - Images (JPEG/PNG) with `{ width=N% }` sizing (clamped to content width)
