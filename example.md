@@ -114,6 +114,14 @@ Mermaid flow diagram (left-to-right):
 
 PlantUML sequence diagram:
 
-![PlantUML sequence](img/plantuml-example.png){ width=50% }
+![PlantUML sequence](img/plantuml-example.png){ width=40% }
+
+</div>
+
+<div marking="EXAMPLE" markdown="1">
+
+## Example Image
+
+![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=25% }
 
 </div>
