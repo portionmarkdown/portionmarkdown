@@ -17,7 +17,7 @@ POC: EXAMPLE
 <!-- markings
 U: U | UNCLASSIFIED
 CUI: CUI | CUI
-S//NF: S//NF | SECRET//NOFORN
+S: S | SECRET
 EXAMPLE: TS//ACCM-EXAMPLE | TOP SECRET//ACCM-EXAMPLE
 -->
 
@@ -29,7 +29,7 @@ EXAMPLE: TS//ACCM-EXAMPLE | TOP SECRET//ACCM-EXAMPLE
 
 </div>
 
-<div marking="CUI" markdown="1">
+<div marking="S" markdown="1">
 
 ```python
 if __name__ == "__main__":
@@ -47,13 +47,9 @@ def hello():
 
 </div>
 
-<div marking="U" markdown="1">
+<div marking="CUI" markdown="1">
 
 ## Example Table
-
-</div>
-
-<div marking="CUI" markdown="1">
 
 | Column A | Column B | Column C |
 |----------|----------|----------|
@@ -73,7 +69,7 @@ def hello():
 
 </div>
 
-<div marking="S//NF" markdown="1">
+<div marking="U" markdown="1">
 
 ## Example Diagram
 
@@ -93,13 +89,13 @@ def hello():
 
 </div>
 
-<div marking="EXAMPLE" markdown="1">
+<div marking="U" markdown="1">
 
-![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=30% }
+![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_15_50%20PM.png){ width=30% }
 
 </div>
 
-<div marking="S//NF" markdown="1">
+<div marking="U" markdown="1">
 
 PlantUML network diagram:
 
@@ -107,7 +103,7 @@ PlantUML network diagram:
 
 </div>
 
-<div marking="CUI" markdown="1">
+<div marking="U" markdown="1">
 
 Graphviz DAG:
 

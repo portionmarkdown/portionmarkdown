@@ -63,7 +63,7 @@ Common marking definitions available in the **Wrap Selection** quick-pick, in ad
 ```jsonc
 "portionmarkdown.commonMarkings": [
   { "key": "U",     "short": "U",     "long": "UNCLASSIFIED" },
-  { "key": "S//NF", "short": "S//NF", "long": "SECRET//NOFORN" },
+  { "key": "S",     "short": "S",     "long": "SECRET" },
   { "key": "EXAMPLE",    "short": "TS//ACCM-EXAMPLE",    "long": "TOP SECRET//ACCM-EXAMPLE" },
 ]
 ```
@@ -71,8 +71,8 @@ Common marking definitions available in the **Wrap Selection** quick-pick, in ad
 | Field | Required | Description |
 |-------|----------|-------------|
 | `key` | Yes | Value used in `<div marking="KEY">` |
-| `short` | Yes | Portion marking prefix shown in the PDF (e.g. `S//NF`) |
-| `long` | Yes | Full classification name for figure/table labels (e.g., `SECRET//NOFORN`) |
+| `short` | Yes | Portion marking prefix shown in the PDF (e.g. `S`) |
+| `long` | Yes | Full classification name for figure/table labels (e.g., `SECRET`) |
 
 #### `portionmarkdown.commonClassificationBlocks`
 
@@ -185,7 +185,7 @@ POC: example
 
 <!-- markings
 U: U | UNCLASSIFIED
-S//NF: S//NF | SECRET//NOFORN
+S: S | SECRET
 EXAMPLE: TS//ACCM-EXAMPLE | TOP SECRET//ACCM-EXAMPLE
 -->
 
