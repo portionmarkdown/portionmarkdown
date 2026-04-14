@@ -91,22 +91,22 @@ def hello():
 
 <div marking="U" markdown="1">
 
-![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_15_50%20PM.png){ width=30% }
+![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_15_50%20PM.png){ width=45% }
 
 </div>
 
 <div marking="U" markdown="1">
 
-PlantUML network diagram:
+PlantUML sequence diagram:
 
-![PlantUML network](img/plantuml-example.png){ width=45% }
+![PlantUML sequence](img/plantuml-example.png){ width=20% }
 
 </div>
 
 <div marking="U" markdown="1">
 
-Graphviz DAG:
+Graphviz network:
 
-![Graphviz DAG](img/graphviz-example.png){ width=15% }
+![Graphviz network](img/graphviz-example.png){ width=25% }
 
 </div>
