@@ -23,6 +23,18 @@ code --install-extension portionmarkdown-*.vsix
 
 This works offline — no marketplace access required. The extension activates automatically on any `.md` file.
 
+#### Optional external tools
+
+Diagram rendering requires external tools that are **not** bundled in the extension:
+
+| Tool | Required for | Notes |
+|------|-------------|-------|
+| **Java** | PlantUML diagrams | JRE or JDK |
+| **PlantUML** | ` ```plantuml ` blocks | CLI wrapper or `.jar` file |
+| **Graphviz** | ` ```dot ` / ` ```graphviz ` blocks | Provides the `dot` command |
+
+Mermaid diagrams (` ```mermaidjs `) render with bundled dependencies and require no external tools.
+
 To build from source:
 
 ```bash
