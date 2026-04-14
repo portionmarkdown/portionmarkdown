@@ -95,8 +95,7 @@ def hello():
 
 <div marking="EXAMPLE" markdown="1">
 
-<!-- 40% width to balance with diagrams below -->
-![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=40% }
+![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=30% }
 
 </div>
 
@@ -104,6 +103,14 @@ def hello():
 
 PlantUML network diagram:
 
-![PlantUML network](img/plantuml-example.png){ width=60% }
+![PlantUML network](img/plantuml-example.png){ width=45% }
+
+</div>
+
+<div marking="CUI" markdown="1">
+
+Graphviz DAG:
+
+![Graphviz DAG](img/graphviz-example.png){ width=15% }
 
 </div>
