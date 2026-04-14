@@ -15,15 +15,20 @@ import { loadImageBuffer } from "./imageLoader";
 
 const MERMAID_LANGS = new Set(["mermaid", "mermaidjs"]);
 const PLANTUML_LANGS = new Set(["plantuml", "puml"]);
+const GRAPHVIZ_LANGS = new Set(["graphviz", "dot"]);
 
 function isDiagramLang(lang: string | null): boolean {
   if (!lang) return false;
   const l = lang.toLowerCase();
-  return MERMAID_LANGS.has(l) || PLANTUML_LANGS.has(l);
+  return MERMAID_LANGS.has(l) || PLANTUML_LANGS.has(l) || GRAPHVIZ_LANGS.has(l);
 }
 
 function isMermaid(lang: string): boolean {
   return MERMAID_LANGS.has(lang.toLowerCase());
+}
+
+function isGraphviz(lang: string): boolean {
+  return GRAPHVIZ_LANGS.has(lang.toLowerCase());
 }
 
 // ── Mermaid: jsdom + vendored bundle + resvg-wasm ───────────────────
@@ -315,6 +320,48 @@ function renderPlantUMLLocal(
   });
 }
 
+// ── Graphviz/dot: subprocess ─────────────────────────────────────────
+
+function findGraphviz(configuredPath: string | undefined): string | null {
+  if (configuredPath) return configuredPath;
+  // Try "dot" on PATH
+  try {
+    child_process.execFileSync("dot", ["-V"], { stdio: "ignore" });
+    return "dot";
+  } catch {
+    /* not on path */
+  }
+  return null;
+}
+
+function renderGraphvizLocal(code: string, dotBin: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const proc = child_process.spawn(dotBin, ["-Tpng"], {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    const chunks: Buffer[] = [];
+    const errChunks: Buffer[] = [];
+    proc.stdout.on("data", (c: Buffer) => chunks.push(c));
+    proc.stderr.on("data", (c: Buffer) => errChunks.push(c));
+
+    proc.on("error", (err) =>
+      reject(new Error(`Failed to run Graphviz (${dotBin}): ${err.message}`)),
+    );
+    proc.on("close", (exitCode) => {
+      if (exitCode !== 0) {
+        const stderr = Buffer.concat(errChunks).toString("utf-8").slice(0, 500);
+        reject(new Error(`Graphviz exited ${exitCode}: ${stderr}`));
+        return;
+      }
+      resolve(Buffer.concat(chunks));
+    });
+
+    proc.stdin.write(code);
+    proc.stdin.end();
+  });
+}
+
 // ── Public API ──────────────────────────────────────────────────────
 
 export interface DiagramResult {
@@ -328,6 +375,7 @@ export async function renderDiagrams(
   extensionPath: string,
   plantumlPath: string | undefined,
   javaPath: string | undefined,
+  graphvizPath: string | undefined,
 ): Promise<DiagramResult> {
   const warnings: string[] = [];
   const preloadedImages = new Map<string, ImageInfo>();
@@ -352,15 +400,25 @@ export async function renderDiagrams(
     }
   }
 
-  // Resolve PlantUML binary (only if we have plantuml blocks)
-  const hasPlantUML = jobs.some((j) => !isMermaid(j.lang));
+  // Resolve external binaries only if needed
+  const hasPlantUML = jobs.some((j) => !isMermaid(j.lang) && !isGraphviz(j.lang));
+  const hasGraphviz = jobs.some((j) => isGraphviz(j.lang));
   const pumlBin = hasPlantUML ? findPlantUML(plantumlPath) : null;
+  const dotBin = hasGraphviz ? findGraphviz(graphvizPath) : null;
 
   // Render each diagram
   const results = await Promise.allSettled(
     jobs.map(async (job): Promise<Buffer> => {
       if (isMermaid(job.lang)) {
         return renderMermaidLocal(job.block.text, extensionPath);
+      }
+      if (isGraphviz(job.lang)) {
+        if (!dotBin) {
+          throw new Error(
+            "Graphviz not found. Install Graphviz or set portionmarkdown.graphvizPath.",
+          );
+        }
+        return renderGraphvizLocal(job.block.text, dotBin);
       }
       // PlantUML
       if (!pumlBin) {
@@ -436,9 +494,19 @@ export async function renderSingleDiagram(
   extensionPath: string,
   plantumlPath: string | undefined,
   javaPath: string | undefined,
+  graphvizPath: string | undefined,
 ): Promise<Buffer> {
   if (isMermaid(lang)) {
     return renderMermaidLocal(code, extensionPath);
+  }
+  if (isGraphviz(lang)) {
+    const dotBin = findGraphviz(graphvizPath);
+    if (!dotBin) {
+      throw new Error(
+        "Graphviz not found. Install Graphviz or set portionmarkdown.graphvizPath.",
+      );
+    }
+    return renderGraphvizLocal(code, dotBin);
   }
   const pumlBin = findPlantUML(plantumlPath);
   if (!pumlBin) {

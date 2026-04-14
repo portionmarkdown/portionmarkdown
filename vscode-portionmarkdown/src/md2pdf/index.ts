@@ -258,6 +258,7 @@ export async function md2pdf(
     options.extensionPath || __dirname,
     options.plantumlPath,
     options.javaPath,
+    options.graphvizPath,
   );
   const blocks = diagramResult.blocks;
   const diagramWarnings = diagramResult.warnings;

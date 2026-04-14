@@ -359,6 +359,7 @@ export function activate(context: vscode.ExtensionContext) {
           font: cfg<string>("font") || "Default",
           plantumlPath: cfg<string>("plantumlPath") || undefined,
           javaPath: cfg<string>("javaPath") || undefined,
+          graphvizPath: cfg<string>("graphvizPath") || undefined,
         });
 
         if (result.warnings?.length) {
@@ -415,6 +416,7 @@ export function activate(context: vscode.ExtensionContext) {
           font: cfg<string>("font") || "Default",
           plantumlPath: cfg<string>("plantumlPath") || undefined,
           javaPath: cfg<string>("javaPath") || undefined,
+          graphvizPath: cfg<string>("graphvizPath") || undefined,
         });
 
         if (result.warnings?.length) {
@@ -470,6 +472,7 @@ export function activate(context: vscode.ExtensionContext) {
           context.extensionPath,
           cfg<string>("plantumlPath") || undefined,
           cfg<string>("javaPath") || undefined,
+          cfg<string>("graphvizPath") || undefined,
         );
         fs.writeFileSync(saveUri.fsPath, pngBuf);
         const choice = await vscode.window.showInformationMessage(
@@ -614,7 +617,14 @@ function firstContentLine(body: string): string {
 
 // ── Diagram detection ──────────────────────────────────────────────────
 
-const DIAGRAM_LANGS = new Set(["mermaid", "mermaidjs", "plantuml", "puml"]);
+const DIAGRAM_LANGS = new Set([
+  "mermaid",
+  "mermaidjs",
+  "plantuml",
+  "puml",
+  "graphviz",
+  "dot",
+]);
 
 function findDiagramAtCursor(
   editor: vscode.TextEditor,

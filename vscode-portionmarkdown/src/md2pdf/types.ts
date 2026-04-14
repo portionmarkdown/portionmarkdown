@@ -121,4 +121,5 @@ export interface Md2PdfOptions {
   font?: string;
   plantumlPath?: string;
   javaPath?: string;
+  graphvizPath?: string;
 }

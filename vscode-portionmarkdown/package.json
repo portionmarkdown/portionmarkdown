@@ -203,6 +203,11 @@
           "default": "",
           "markdownDescription": "Path to `java` executable used when running `plantuml.jar`. Leave empty to use `java` from `PATH`."
         },
+        "portionmarkdown.graphvizPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to the Graphviz `dot` executable. Leave empty to auto-detect from `PATH`. Examples: `/usr/bin/dot`, `C:\\Program Files\\Graphviz\\bin\\dot.exe`."
+        },
         "portionmarkdown.commonCuiBlocks": {
           "type": "array",
           "items": {

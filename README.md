@@ -41,7 +41,7 @@ All commands are available from the editor right-click context menu on Markdown 
 | **Preview PDF** | Right-click | Opens a live PDF preview in a side panel. Auto-refreshes as you edit (800 ms debounce). |
 | **Export to PDF** | Right-click / file explorer | Exports the Markdown file to PDF alongside the source. |
 | **Export Watermarked PDF** | Right-click / file explorer | Exports the Markdown file to PDF with diagonal "EXAMPLE" watermark overlay. |
-| **Save Diagram as PNG** | Right-click (cursor in diagram block) | Renders a ` ```mermaidjs ` or ` ```plantuml ` code block to PNG and saves it. |
+| **Save Diagram as PNG** | Right-click (cursor in diagram block) | Renders a ` ```mermaidjs `, ` ```plantuml `, or ` ```dot ` code block to PNG and saves it. |
 
 The **Insert Template Block** submenu offers Classification, CUI, and Markings block insertion with quick-pick selection from blank, recently used, and settings-defined templates.
 
@@ -115,6 +115,17 @@ Path to the `java` executable used when running a `plantuml.jar` file. Leave emp
 
 ```jsonc
 "portionmarkdown.javaPath": "/usr/lib/jvm/java-21/bin/java"
+```
+
+#### `portionmarkdown.graphvizPath`
+
+Path to the Graphviz `dot` executable. Leave empty to auto-detect from `PATH`.
+
+```jsonc
+// Linux / macOS
+"portionmarkdown.graphvizPath": "/usr/bin/dot"
+// Windows
+"portionmarkdown.graphvizPath": "C:\\Program Files\\Graphviz\\bin\\dot.exe"
 ```
 
 The extension remembers your 5 most recently used markings and templates across sessions.
@@ -199,6 +210,7 @@ Marking format is `KEY: SHORT | LONG` — KEY is used in `<div marking="KEY">`, 
 - Fenced code blocks with syntax highlighting, line wrapping, and optional line numbers (`{startline=N}`)
 - Mermaid diagrams (` ```mermaidjs `) — rendered locally via jsdom + resvg-wasm, no cloud services
 - PlantUML diagrams (` ```plantuml `) — rendered locally via the system `plantuml` command (requires Java)
+- Graphviz/DOT diagrams (` ```dot ` or ` ```graphviz `) — rendered locally via the system `dot` command
 - Blockquotes (`>`) with nesting support
 - Tables with header row styling, alternating row shading, per-cell portion markings, and cross-page splitting
 - Images (JPEG/PNG) with `{ width=N% }` sizing (clamped to content width)
