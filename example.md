@@ -29,20 +29,20 @@ EXAMPLE: TS//ACCM-EXAMPLE | TOP SECRET//ACCM-EXAMPLE
 
 </div>
 
-<div marking="U" markdown="1">
-
-```python
-def hello():
-    print("Example")
-```
-
-</div>
-
 <div marking="CUI" markdown="1">
 
 ```python { startline=10 }
 if __name__ == "__main__":
     hello()
+```
+
+</div>
+
+<div marking="EXAMPLE" markdown="1">
+
+```python
+def hello():
+    print("Example")
 ```
 
 </div>
@@ -59,8 +59,8 @@ Example paragraph for the table section.
 
 | Column A | Column B | Column C |
 |----------|----------|----------|
-| Example  | This cell has a longer piece of text that should wrap to at least two rows in the rendered PDF output | Example  |
-| Example  | Example  | Another cell with enough text to demonstrate multi-line wrapping behavior in a table |
+| Example  | This cell wraps to at least two rows in the rendered PDF output | Example  |
+| Example  | Example  | Another cell demonstrating multi-line wrapping |
 
 </div>
 
@@ -68,25 +68,19 @@ Example paragraph for the table section.
 
 ## Example Link, Footnote & Line Break
 
-See the [portionmarkdown repo](https://github.com/portionmarkdown/portionmarkdown)[^1] for documentation.
-
-This line has a `<br>` line break<br>right here in the middle.
+- See the [portionmarkdown repo](https://github.com/portionmarkdown/portionmarkdown)[^1] for documentation.
+- This line has a `<br>` line break<br>right here in the middle.
+- Inline `code`, **bold**, and *italic* formatting.
 
 [^1]: (U) https://github.com/portionmarkdown/portionmarkdown
 
 </div>
 
-<div marking="U" markdown="1">
+<div marking="S//NF" markdown="1">
 
-## Example Ordered List
+## Example Diagram
 
-</div>
-
-<div marking="EXAMPLE" markdown="1">
-
-1. Example step one
-2. Example step two
-3. Example step three
+![Mermaid flow](img/mermaid-example.png){ width=40% }
 
 </div>
 
@@ -110,16 +104,8 @@ This line has a `<br>` line break<br>right here in the middle.
 
 <div marking="S//NF" markdown="1">
 
-Mermaid flow diagram (left-to-right):
-
-![Mermaid flow](img/mermaid-example.png){ width=60% }
-
-</div>
-
-<div marking="S//NF" markdown="1">
-
 PlantUML sequence diagram:
 
-![PlantUML sequence](img/plantuml-example.png){ width=40% }
+![PlantUML sequence](img/plantuml-example.png){ width=45% }
 
 </div>
