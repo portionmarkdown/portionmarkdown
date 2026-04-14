@@ -476,13 +476,11 @@ export function layout(
       const pg2 = pages[pages.length - 1];
       pg2.image(MARGIN, y - dispH, dispW, dispH, imgName);
 
-      // Draw border around diagram images (preloaded __diagram_ sources)
-      if (imgSrc.startsWith("__diagram_")) {
-        pg2.line(MARGIN, y, MARGIN + dispW, y, 0.3, CLR_TBL_LINE);
-        pg2.line(MARGIN, y - dispH, MARGIN + dispW, y - dispH, 0.3, CLR_TBL_LINE);
-        pg2.line(MARGIN, y, MARGIN, y - dispH, 0.3, CLR_TBL_LINE);
-        pg2.line(MARGIN + dispW, y, MARGIN + dispW, y - dispH, 0.3, CLR_TBL_LINE);
-      }
+      // Draw border around all images (same color/weight as table borders)
+      pg2.line(MARGIN, y, MARGIN + dispW, y, 0.3, CLR_TBL_LINE);
+      pg2.line(MARGIN, y - dispH, MARGIN + dispW, y - dispH, 0.3, CLR_TBL_LINE);
+      pg2.line(MARGIN, y, MARGIN, y - dispH, 0.3, CLR_TBL_LINE);
+      pg2.line(MARGIN + dispW, y, MARGIN + dispW, y - dispH, 0.3, CLR_TBL_LINE);
 
       y -= dispH;
 
