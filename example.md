@@ -96,14 +96,15 @@ def hello():
 
 <div marking="EXAMPLE" markdown="1">
 
-![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=25% }
+<!-- 40% width to balance with diagrams below -->
+![Example image](img/ChatGPT%20Image%20Mar%208,%202026,%2005_22_55%20PM.png){ width=40% }
 
 </div>
 
 <div marking="S//NF" markdown="1">
 
-PlantUML sequence diagram:
+PlantUML network diagram:
 
-![PlantUML sequence](img/plantuml-example.png){ width=45% }
+![PlantUML network](img/plantuml-example.png){ width=60% }
 
 </div>
