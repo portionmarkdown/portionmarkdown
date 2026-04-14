@@ -806,8 +806,20 @@ export function layout(
         pmWords.add(pmPrefix);
       }
 
+      // For list items, compute hanging indent so continuation lines
+      // align with the text after the bullet/number prefix.
+      let hangInd = 0;
+      if (b.type === "para" && b.isLi && runs.length > 0) {
+        // The prefix run (e.g. "-  " or "1. ") is always runs[0]
+        hangInd = textWidth(runs[0].text, runs[0].font, sz);
+        // If a portion marking was inserted after prefix, include it
+        if (pm && runs.length > 1) {
+          hangInd += textWidth(runs[1].text, runs[1].font, sz);
+        }
+      }
+
       const mw = CONTENT_W - ind;
-      const wrapped = wrap(runs, mw, sz);
+      const wrapped = wrap(runs, mw, sz, hangInd);
       const clr = b.type === "heading" ? CLR_HEADING : CLR_TEXT;
 
       y -= isBq ? Math.max(sb, 6) : sb;
@@ -833,7 +845,7 @@ export function layout(
           for (const ref of fnRefs) addFootnote(ref);
         }
         y -= lh;
-        let x = MARGIN + ind;
+        let x = MARGIN + ind + (li > 0 ? hangInd : 0);
         const pg = pages[pages.length - 1];
         for (const r of wrapped[li]) {
           if (r.footnoteRef != null) {

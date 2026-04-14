@@ -3,10 +3,20 @@
 import type { TextRun } from "./types";
 import { textWidth } from "./fontMetrics";
 
-export function wrap(runs: TextRun[], maxW: number, size: number): TextRun[][] {
+export function wrap(
+  runs: TextRun[],
+  maxW: number,
+  size: number,
+  hangIndent: number = 0,
+): TextRun[][] {
   const lines: TextRun[][] = [];
   let cur: TextRun[] = [];
   let cw = 0;
+
+  // Line 0 uses full maxW; continuation lines use maxW - hangIndent
+  function lineMaxW(): number {
+    return lines.length === 0 ? maxW : maxW - hangIndent;
+  }
 
   for (const { text, font, link, footnoteRef, strikethrough } of runs) {
     // Split on explicit line breaks (\n) first
@@ -22,10 +32,11 @@ export function wrap(runs: TextRun[], maxW: number, size: number): TextRun[][] {
       const words = segment.split(" ");
       for (let wi = 0; wi < words.length; wi++) {
         const word = words[wi];
+        const lmw = lineMaxW();
         if (wi > 0) {
           const sw = textWidth(" ", font, size);
           const ww = word ? textWidth(word, font, size) : 0;
-          if (cw + sw + ww > maxW && cur.length > 0 && word) {
+          if (cw + sw + ww > lmw && cur.length > 0 && word) {
             lines.push(cur);
             cur = [];
             cw = 0;
@@ -40,18 +51,20 @@ export function wrap(runs: TextRun[], maxW: number, size: number): TextRun[][] {
         }
         if (word) {
           const ww = textWidth(word, font, size);
-          if (cw + ww > maxW && cur.length > 0) {
+          const lmw2 = lineMaxW();
+          if (cw + ww > lmw2 && cur.length > 0) {
             lines.push(cur);
             cur = [];
             cw = 0;
           }
-          // Break word character-by-character if it exceeds maxW
-          if (textWidth(word, font, size) > maxW) {
+          // Break word character-by-character if it exceeds line width
+          const lmw3 = lineMaxW();
+          if (textWidth(word, font, size) > lmw3) {
             let chunk = "";
             let chunkW = 0;
             for (const ch of word) {
               const chW = textWidth(ch, font, size);
-              if (chunkW + chW > maxW && chunk) {
+              if (chunkW + chW > lineMaxW() && chunk) {
                 const cr: TextRun = { text: chunk, font };
                 if (link) cr.link = link;
                 if (footnoteRef != null) cr.footnoteRef = footnoteRef;

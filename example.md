@@ -57,7 +57,6 @@ def hello():
 
 | Column A | Column B | Column C |
 |----------|----------|----------|
-| Example  | This cell wraps to at least two rows in the rendered PDF output | Example  |
 | Example  | Example  | Example |
 
 </div>
