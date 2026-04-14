@@ -32,7 +32,7 @@ export const CLR_LINK: RGB = [0.133, 0.369, 0.659]; // true blue
 // ── named colors (GitHub base16 palette) ──────────────────────────────
 export const NAMED_COLORS: Record<string, RGB> = {
   green: [0.239, 0.545, 0.216], // #3d8b37 — green
-  red: [0.655, 0.114, 0.365], // base0E #a71d5d — SECRET
+  red: [0.753, 0.224, 0.169], // #C0392B — SECRET
   orange: [1.0, 0.459, 0.094], // #FF7518
   yellow: [0.475, 0.365, 0.639], // base0A #795da3
   blue: [0.094, 0.212, 0.569], // base0B #183691

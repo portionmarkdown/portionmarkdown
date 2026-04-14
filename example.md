@@ -31,7 +31,7 @@ EXAMPLE: TS//ACCM-EXAMPLE | TOP SECRET//ACCM-EXAMPLE
 
 <div marking="CUI" markdown="1">
 
-```python { startline=10 }
+```python
 if __name__ == "__main__":
     hello()
 ```
@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
 <div marking="EXAMPLE" markdown="1">
 
-```python
+```python { startline=1 }
 def hello():
     print("Example")
 ```
@@ -54,8 +54,6 @@ def hello():
 </div>
 
 <div marking="CUI" markdown="1">
-
-Example paragraph for the table section.
 
 | Column A | Column B | Column C |
 |----------|----------|----------|
@@ -80,7 +78,7 @@ Example paragraph for the table section.
 
 ## Example Diagram
 
-![Mermaid flow](img/mermaid-example.png){ width=40% }
+![Mermaid flow](img/mermaid-example.png){ width=48% }
 
 </div>
 
